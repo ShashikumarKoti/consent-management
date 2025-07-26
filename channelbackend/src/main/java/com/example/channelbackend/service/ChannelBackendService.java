@@ -6,13 +6,8 @@ import com.example.channelbackend.model.OmniChannelRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.security.interfaces.RSAPublicKey;
-import java.util.Base64;
 
 @Service
 public class ChannelBackendService {
@@ -41,7 +36,7 @@ public class ChannelBackendService {
         return response;
     }
 
-    private String prepareRequestForOmniChannel(OmniChannelRequest omniChannelRequest, ConsentResponseObject consentResponseObject) {
+    private void prepareRequestForOmniChannel(OmniChannelRequest omniChannelRequest, ConsentResponseObject consentResponseObject) {
         String responseObject;
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -55,7 +50,6 @@ public class ChannelBackendService {
             throw new RuntimeException("Error while calling OmniChannel service: " + e.getMessage(), e);
         }
         System.out.println("Response from OmniChannel service: " + responseObject);
-        return responseObject;
     }
 
     private ConsentRequest prepareConsentRequest(OmniChannelRequest omniChannelRequest) {
