@@ -11,8 +11,9 @@ public class ChannelBackendController {
 
     @Autowired
     private ChannelBackendService channelBackendService;
-    @PostMapping("/status")
-    public String callOmniChannel(@RequestBody OmniChannelRequest omniChannelRequest) {
+    @PostMapping("/call-omni-channel")
+    public String callCreateConsent(@RequestBody OmniChannelRequest omniChannelRequest) throws Exception {
+        System.out.println("Received OmniChannelRequest in ChannelBackendController: " + omniChannelRequest);
         String channelBackendStatus = channelBackendService.callOmniChannelService(omniChannelRequest);
         System.out.println("channelBackend " + channelBackendStatus);
         return channelBackendStatus;
