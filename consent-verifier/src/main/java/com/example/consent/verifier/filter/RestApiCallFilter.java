@@ -40,8 +40,8 @@ public class RestApiCallFilter implements Filter  {
 
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:8080/v1/consent/verify";
-        boolean s = Boolean.TRUE.equals(restTemplate.postForObject(url, consentRequest, Boolean.class));
-        if(s) {
+        boolean isValidJws = Boolean.TRUE.equals(restTemplate.postForObject(url, consentRequest, Boolean.class));
+        if(isValidJws) {
             System.out.println("Consent verified successfully for request: " + consentRequest);
         } else {
             throw new Exception("Consent verification failed for request: " + consentRequest);

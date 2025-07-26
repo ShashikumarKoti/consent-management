@@ -14,6 +14,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,8 +29,15 @@ public class CreateConsentService {
     public String generateJWSConsent(ConsentRequest consentRequest) throws JOSEException, NoSuchAlgorithmException {
         // Create JWS header
 
+        long now = Instant.now().getEpochSecond();
+        long nbf = now;
+        long exp = now + 1;
+
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPairGenerator.getPrivate();
-        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).build();
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).contentType("application/json")
+                .customParam("nbf", nbf)
+                .customParam("exp", exp)
+                .build();
 
         // Create JWS object with payload
         JWSObject jwsObject = new JWSObject(header, new Payload(consentRequest.toString()));
@@ -47,7 +55,14 @@ public class CreateConsentService {
 
 
     public boolean verifyJWSConsent(ConsentRequest consentRequest) throws ParseException, JOSEException, NoSuchAlgorithmException, java.text.ParseException {
-        // Split the detached JWS into parts
+
+        // Simulate a delay to mimic real-world scenarios
+//        try {
+//            Thread.sleep(1100);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+
         String[] parts = this.jwsMap.get("detachedJws").split("\\.\\.");
         if (parts.length != 2) {
             throw new IllegalArgumentException("Invalid JWS format");
@@ -61,7 +76,24 @@ public class CreateConsentService {
 
         // Verify the JWS
         JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) keyPairGenerator.getPublic());
-        return jwsObject.verify(verifier);
-    }
+        boolean verified = jwsObject.verify(verifier);
 
+        if (verified) {
+            //check nbf and exp
+            long now = Instant.now().getEpochSecond();
+            System.out.println("now in consent service = " + now);
+            long nbf = (long) jwsObject.getHeader().getCustomParam("nbf");
+            System.out.println("nbf in consent service = " + nbf);
+            long exp = (long) jwsObject.getHeader().getCustomParam("exp");
+            System.out.println("exp in consent service = " + exp);
+
+            if (now < nbf || now > exp) {
+                throw new JOSEException("JWS is not valid at this time");
+            } else {
+                return verified;
+            }
+        }
+
+        return verified;
+    }
 }
