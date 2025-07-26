@@ -50,12 +50,6 @@ public class ChannelBackendService {
 
             HttpEntity<OmniChannelRequest> entity = new HttpEntity<>(omniChannelRequest, headers);
             String url = "http://localhost:8083/v1/omnichannel/create";
-//            response = restTemplate.exchange(
-//                    url,
-//                    HttpMethod.POST,
-//                    entity,
-//                    String.class
-//            );
             responseObject = restTemplate.postForObject(url, entity, String.class);
         } catch (Exception e) {
             throw new RuntimeException("Error while calling OmniChannel service: " + e.getMessage(), e);
